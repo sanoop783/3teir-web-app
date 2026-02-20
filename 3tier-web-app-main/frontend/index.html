@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product List</title>
+  <style>
+    /* Basic styling */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .product {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .product-info {
+      flex-grow: 1;
+    }
+    .product-actions {
+      text-align: right;
+    }
+    .product-actions button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .product-actions button:hover {
+      background-color: #45a049;
+    }
+    .price {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Product List</h1>
+  <div id="products">
+    <!-- Products will be dynamically inserted here -->
+  </div>
+
+  <script>
+    // Function to fetch data from the backend with detailed logging
+    async function fetchProducts() {
+      try {
+        console.log('Starting to fetch products...');
+
+        const response = await fetch('http://backend:5000/items'); // Replace with your actual backend URL
+
+        // Log detailed response information
+        console.log('Raw response object:', response);
+        console.log('Status:', response.status);
+        console.log('Status Text:', response.statusText);
+        console.log('Response OK:', response.ok);
+
+        // Check if the response was successful (status code 200-299)
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Parse the response body as JSON
+        const data = await response.json();
+        console.log('Parsed data:', data);
+
+        // Verify that data contains the expected products array
+        if (data.products) {
+          displayProducts(data.products);
+        } else {
+          console.error('No "products" array found in the response data.');
+          document.getElementById('products').innerHTML =
+            '<p style="color:red;">No products available.</p>';
+        }
+      } catch (error) {
+        // Log any errors that occur during the fetch
+        console.error('Error fetching products:', error);
+        document.getElementById('products').innerHTML =
+          '<p style="color:red;">Error loading products.</p>';
+      }
+    }
+
+    // Function to display products on the page
+    function displayProducts(products) {
+      const productsContainer = document.getElementById('products');
+      productsContainer.innerHTML = ''; // Clear any previous content
+
+      products.forEach(product => {
+        const productDiv = document.createElement('div');
+        productDiv.className = 'product';
+        productDiv.innerHTML = `
+          <div class="product-info">
+            <h2>${product.name}</h2>
+            <p>${product.description}</p>
+            <p class="price">$${
